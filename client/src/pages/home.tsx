@@ -182,19 +182,32 @@ export default function Home({ toggleDarkMode }: HomeProps) {
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Array(4).fill(0).map((_, i) => (
-                <div key={i} className="rounded-xl overflow-hidden shadow-md bg-white dark:bg-gray-800">
-                  <div className="bg-gray-300 dark:bg-gray-700 aspect-video animate-pulse"></div>
-                  <div className="p-5">
-                    <div className="h-7 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse mb-3"></div>
+            <>
+              <div className="mb-6">
+                <div className="rounded-lg overflow-hidden shadow-sm bg-white dark:bg-gray-800">
+                  <div className="bg-gray-300 dark:bg-gray-700 aspect-[21/9] animate-pulse"></div>
+                  <div className="p-4">
+                    <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse mb-3"></div>
                     <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse mb-2"></div>
                     <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse mb-2 w-3/4"></div>
                     <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse w-1/2"></div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array(6).fill(0).map((_, i) => (
+                  <div key={i} className="rounded-lg overflow-hidden shadow-sm bg-white dark:bg-gray-800">
+                    <div className="bg-gray-300 dark:bg-gray-700 aspect-video animate-pulse"></div>
+                    <div className="p-3">
+                      <div className="h-5 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse mb-2"></div>
+                      <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse mb-1.5"></div>
+                      <div className="h-3 bg-gray-300 dark:bg-gray-700 rounded-md animate-pulse w-3/4"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           ) : isError ? (
             <div className="bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-5 mb-6">
               <div className="flex items-start space-x-3">
@@ -222,9 +235,13 @@ export default function Home({ toggleDarkMode }: HomeProps) {
             </div>
           ) : (
             <>
-              {featuredArticle && <FeaturedArticle article={featuredArticle} />}
+              {featuredArticle && (
+                <div className="mb-6">
+                  <FeaturedArticle article={featuredArticle} />
+                </div>
+              )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {remainingArticles.map((article, index) => (
                   <ArticleCard key={`${article.title}-${index}`} article={article} />
                 ))}

@@ -39,78 +39,92 @@ export function HeadlineSlider({ headlines }: HeadlineSliderProps) {
   const headline = headlines[currentIndex];
 
   return (
-    <div className="relative rounded-xl overflow-hidden mb-8 bg-gradient-to-r from-primary/20 to-primary/5 dark:from-primary/10 dark:to-gray-800/50 p-1">
+    <div className="relative rounded-lg overflow-hidden mb-6 shadow-sm border border-gray-200 dark:border-gray-700">
+      {/* Navigation buttons */}
       <div className="absolute top-1/2 left-2 z-10 transform -translate-y-1/2">
         <Button 
           onClick={prevSlide} 
           variant="outline" 
           size="icon" 
-          className="rounded-full bg-white/80 dark:bg-gray-800/80 shadow-md"
+          className="h-8 w-8 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-0 shadow-md"
           aria-label="Previous slide"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4" />
         </Button>
       </div>
       
-      <div className="px-12 py-4">
+      {/* Slide content */}
+      <div className="bg-gradient-to-r from-primary/5 to-transparent dark:from-gray-900/30 dark:to-transparent">
         <Link href={`/article/${encodeURIComponent(headline.title)}`}>
-          <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-center cursor-pointer">
+          <div className="flex flex-col md:flex-row items-stretch cursor-pointer group">
+            {/* Image container */}
             {headline.image && (
-              <div className="w-full md:w-1/3 rounded-lg overflow-hidden aspect-video">
+              <div className="md:w-2/5 overflow-hidden">
                 <img 
                   src={headline.image} 
                   alt={headline.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover min-h-[200px] group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
             )}
-            <div className="w-full md:w-2/3">
-              <div className="flex items-center mb-2">
-                <span className="bg-primary text-white px-3 py-1 rounded-full text-xs font-medium">
-                  Top Headline
+            
+            {/* Content container */}
+            <div className="md:w-3/5 p-4 md:p-6 flex flex-col justify-center">
+              <div className="flex items-center space-x-2 mb-3">
+                <span className="bg-primary text-white px-2 py-0.5 rounded-full text-xs font-medium">
+                  Latest
                 </span>
                 {headline.source?.name && (
-                  <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
                     {headline.source?.name}
                   </span>
                 )}
               </div>
-              <h2 className="text-xl md:text-2xl font-bold line-clamp-2 hover:text-primary transition-colors">
+              
+              <h2 className="text-lg md:text-xl font-bold line-clamp-2 group-hover:text-primary transition-colors">
                 {headline.title}
               </h2>
-              <p className="mt-2 text-gray-600 dark:text-gray-400 line-clamp-2 md:line-clamp-3">
+              
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                 {headline.description}
               </p>
+              
+              <div className="mt-3 text-primary text-xs font-medium group-hover:underline flex items-center">
+                Read full article
+              </div>
             </div>
           </div>
         </Link>
 
         {/* Slide indicators */}
-        <div className="flex justify-center mt-4 space-x-2">
-          {headlines.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`h-2 rounded-full transition-all ${
-                index === currentIndex 
-                  ? 'w-4 bg-primary' 
-                  : 'w-2 bg-gray-300 dark:bg-gray-600'
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
+        <div className="absolute bottom-3 left-0 right-0">
+          <div className="flex justify-center space-x-1.5">
+            {headlines.slice(0, 5).map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`h-1.5 rounded-full transition-all ${
+                  index === currentIndex 
+                    ? 'w-6 bg-primary' 
+                    : 'w-1.5 bg-gray-300/80 dark:bg-gray-600/80'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
       
+      {/* Next button */}
       <div className="absolute top-1/2 right-2 z-10 transform -translate-y-1/2">
         <Button 
           onClick={nextSlide} 
           variant="outline" 
           size="icon" 
-          className="rounded-full bg-white/80 dark:bg-gray-800/80 shadow-md"
+          className="h-8 w-8 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-0 shadow-md"
           aria-label="Next slide"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
