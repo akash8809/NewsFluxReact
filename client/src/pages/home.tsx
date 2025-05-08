@@ -7,6 +7,8 @@ import { ArticleCard } from "@/components/news/article-card";
 import { FeaturedArticle } from "@/components/news/featured-article";
 import { CategoryPills } from "@/components/news/category-pills";
 import { ArticleDetailModal } from "@/components/news/article-detail-modal";
+import { HeadlineSlider } from "@/components/news/headline-slider";
+import { RefreshButton } from "@/components/news/refresh-button";
 import { NEWS_API_ENDPOINT, CATEGORIES, DEFAULT_PAGE_SIZE } from "@/lib/constants";
 import { Article, NewsResponse } from "@/lib/types";
 import { AlertCircle } from "lucide-react";
@@ -20,10 +22,12 @@ interface HomeProps {
 export default function Home({ toggleDarkMode }: HomeProps) {
   const [currentCategory, setCurrentCategory] = useState<string>("general");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [queryParams, setQueryParams] = useState({ category: "general" });
+  const [queryParams, setQueryParams] = useState<{ category?: string; q?: string }>({ category: "general" });
   const [page, setPage] = useState<number>(1);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [headlines, setHeadlines] = useState<Article[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const { toast } = useToast();
 
   // Reset page when category or search query changes
@@ -31,10 +35,34 @@ export default function Home({ toggleDarkMode }: HomeProps) {
     setPage(1);
   }, [currentCategory, queryParams]);
 
-  const { data, isLoading, isError, error, refetch } = useQuery<NewsResponse>({
+  // Query for the current category or search
+  const { 
+    data, 
+    isLoading, 
+    isError, 
+    error, 
+    refetch,
+    isFetching
+  } = useQuery<NewsResponse>({
     queryKey: [NEWS_API_ENDPOINT, queryParams, page],
     retry: 1,
   });
+
+  // Separate query for top headlines (always fetch regardless of category)
+  const { 
+    data: headlinesData,
+    refetch: refetchHeadlines 
+  } = useQuery<NewsResponse>({
+    queryKey: [NEWS_API_ENDPOINT, { category: "general" }],
+    enabled: !searchQuery, // Only fetch headlines when not searching
+  });
+
+  // Update headlines when data is available
+  useEffect(() => {
+    if (headlinesData?.articles && headlinesData.articles.length > 0) {
+      setHeadlines(headlinesData.articles.slice(0, 5)); // Get top 5 headlines
+    }
+  }, [headlinesData]);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -49,6 +77,25 @@ export default function Home({ toggleDarkMode }: HomeProps) {
     setCurrentCategory(category);
     setSearchQuery("");
     setQueryParams({ category });
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([refetch(), refetchHeadlines()]);
+      toast({
+        title: "Refreshed",
+        description: "The latest news has been loaded",
+      });
+    } catch (error) {
+      toast({
+        title: "Refresh failed",
+        description: "Could not load the latest news. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const handleRetry = () => {
@@ -100,6 +147,11 @@ export default function Home({ toggleDarkMode }: HomeProps) {
         <Sidebar currentCategory={currentCategory} setCurrentCategory={handleCategoryChange} />
 
         <div className="flex-grow">
+          {/* Show headline slider only on home/category pages, not search */}
+          {!searchQuery && headlines.length > 0 && (
+            <HeadlineSlider headlines={headlines} />
+          )}
+
           <div className="md:hidden overflow-x-auto pb-3 mb-3 -mx-4 px-4 scrollbar-hide">
             <div className="flex space-x-2 whitespace-nowrap">
               <CategoryPills
@@ -110,17 +162,23 @@ export default function Home({ toggleDarkMode }: HomeProps) {
             </div>
           </div>
 
-          <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold">
-              {searchQuery
-                ? `Search Results: ${searchQuery}`
-                : CATEGORIES.find(c => c.value === currentCategory)?.label || "News"}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {searchQuery
-                ? `Latest news related to "${searchQuery}"`
-                : "The latest news from around the world"}
-            </p>
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">
+                {searchQuery
+                  ? `Search Results: ${searchQuery}`
+                  : CATEGORIES.find(c => c.value === currentCategory)?.label || "News"}
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                {searchQuery
+                  ? `Latest news related to "${searchQuery}"`
+                  : "The latest news from around the world"}
+              </p>
+            </div>
+            <RefreshButton 
+              onRefresh={handleRefresh} 
+              isRefreshing={isRefreshing || isFetching}
+            />
           </div>
 
           {isLoading ? (
