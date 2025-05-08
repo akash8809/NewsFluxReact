@@ -11,22 +11,28 @@ interface RefreshButtonProps {
 export function RefreshButton({ onRefresh, isRefreshing, className }: RefreshButtonProps) {
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="sm"
       onClick={onRefresh}
       disabled={isRefreshing}
       className={cn(
-        'flex items-center space-x-1 rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5',
+        'flex items-center space-x-1.5 rounded-full h-8 px-3 text-xs font-medium',
+        'bg-gray-100/80 hover:bg-gray-200/80 dark:bg-gray-800/50 dark:hover:bg-gray-700/50',
+        'border border-gray-200 dark:border-gray-700',
+        'transition-all duration-200',
+        isRefreshing && 'opacity-70',
         className
       )}
     >
       <RefreshCw 
         className={cn(
-          'h-4 w-4 text-gray-600 dark:text-gray-400', 
-          isRefreshing && 'animate-spin'
+          'h-3.5 w-3.5', 
+          isRefreshing ? 'animate-spin text-primary' : 'text-gray-500 dark:text-gray-400'
         )} 
       />
-      <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+      <span className="text-gray-700 dark:text-gray-300">
+        {isRefreshing ? 'Refreshing...' : 'Refresh'}
+      </span>
     </Button>
   );
 }
