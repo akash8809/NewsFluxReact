@@ -38,8 +38,18 @@ export async function fetchNews(params: NewsApiParams): Promise<NewsResponse> {
     }
 
     // Add category parameter if provided and no query is set
-    if (params.category && params.category !== 'general' && !params.q) {
-      queryParams.append('category', params.category);
+    if (params.category) {
+      // For debugging
+      console.log(`Using category: ${params.category}`);
+      
+      if (params.category !== 'general') {
+        queryParams.append('category', params.category);
+      }
+      
+      // If we're doing a category search, make sure we're using the top-headlines endpoint
+      if (!params.q) {
+        endpoint = `${BASE_URL}/top-headlines`;
+      }
     }
 
     const response = await axios.get(`${endpoint}?${queryParams.toString()}`);

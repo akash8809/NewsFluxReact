@@ -9,6 +9,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { q, category, page, pageSize } = req.query;
       
+      console.log("Received request with params:", { 
+        q, category, page, pageSize 
+      });
+      
       const params = {
         q: q ? String(q) : undefined,
         category: category ? String(category) : undefined,
@@ -16,7 +20,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         pageSize: pageSize ? Number(pageSize) : undefined,
       };
       
+      // Log the processed parameters
+      console.log("Processed params:", params);
+      
       const news = await fetchNews(params);
+      
+      // Log the response size
+      console.log(`Returning ${news.articles.length} articles for category: ${params.category || 'none'}, query: ${params.q || 'none'}`);
+      
       res.json(news);
     } catch (error) {
       console.error("Error in /api/news route:", error);
