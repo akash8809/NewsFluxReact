@@ -106,10 +106,10 @@ export default function Article() {
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="max-w-3xl mx-auto">
           <Link href="/">
-            <a className="inline-flex items-center mb-6 text-primary hover:underline">
+            <div className="inline-flex items-center mb-6 text-primary hover:underline cursor-pointer">
               <ChevronLeft className="h-4 w-4 mr-1" />
               Back to all news
-            </a>
+            </div>
           </Link>
           
           {article.image && (

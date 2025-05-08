@@ -14,8 +14,8 @@ export function Footer() {
             <p>© {new Date().getFullYear()} NewsHub - A modern news aggregator</p>
             <p className="mt-1">
               Powered by GNews | 
-              <Link href="/terms"><a className="text-primary hover:underline ml-1">Terms</a></Link> | 
-              <Link href="/privacy"><a className="text-primary hover:underline ml-1">Privacy</a></Link>
+              <Link href="/terms"><span className="text-primary hover:underline ml-1 cursor-pointer">Terms</span></Link> | 
+              <Link href="/privacy"><span className="text-primary hover:underline ml-1 cursor-pointer">Privacy</span></Link>
             </p>
           </div>
         </div>

@@ -15,7 +15,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
 
   return (
     <Link href={`/article/${encodeURIComponent(article.title)}`}>
-      <a className="block group">
+      <div className="block group cursor-pointer">
         <Card className="rounded-xl overflow-hidden shadow-md article-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200">
           <div className="relative aspect-video">
             {article.image && (
@@ -50,7 +50,7 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
             </div>
           </CardContent>
         </Card>
-      </a>
+      </div>
     </Link>
   );
 }

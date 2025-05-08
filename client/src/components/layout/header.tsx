@@ -35,10 +35,10 @@ export function Header({
       <div className="container mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between">
         <div className="flex items-center justify-between w-full sm:w-auto mb-3 sm:mb-0">
           <Link href="/">
-            <a className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 cursor-pointer">
               <NewspaperIcon className="h-8 w-8 text-primary" />
               <h1 className="text-2xl font-bold">NewsHub</h1>
-            </a>
+            </div>
           </Link>
           <Button
             variant="ghost"
