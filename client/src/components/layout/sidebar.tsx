@@ -23,7 +23,7 @@ export function Sidebar({ currentCategory, setCurrentCategory }: SidebarProps) {
   
   return (
     <aside className={`hidden md:block ${isCollapsed ? 'w-16' : 'w-56'} flex-shrink-0 transition-all duration-300`}>
-      <div className="sticky top-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         {/* Header with collapse toggle */}
         <div className="flex items-center justify-between mb-4">
           <h2 className={`text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 ${isCollapsed ? 'hidden' : 'block'}`}>
@@ -31,7 +31,7 @@ export function Sidebar({ currentCategory, setCurrentCategory }: SidebarProps) {
           </h2>
           <button 
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
+            className="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 flex-shrink-0"
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -40,8 +40,8 @@ export function Sidebar({ currentCategory, setCurrentCategory }: SidebarProps) {
           </button>
         </div>
         
-        {/* Navigation */}
-        <nav className="space-y-1">
+        {/* Navigation - with fixed height and scrollable if needed */}
+        <nav className="space-y-1 overflow-y-auto max-h-[calc(100vh-12rem)]">
           {CATEGORIES.map((category) => {
             const isActive = currentCategory === category.value;
             return (
@@ -59,29 +59,29 @@ export function Sidebar({ currentCategory, setCurrentCategory }: SidebarProps) {
                 }`}
                 title={isCollapsed ? category.label : undefined}
               >
-                <div className={`${isActive ? 'bg-primary/10 text-primary' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'} p-1.5 rounded-md`}>
+                <div className={`flex-shrink-0 ${isActive ? 'bg-primary/10 text-primary' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'} p-1.5 rounded-md`}>
                   {categoryIcons[category.value] || <HashIcon className="h-4 w-4" />}
                 </div>
-                {!isCollapsed && <span className="ml-3">{category.label}</span>}
+                {!isCollapsed && <span className="ml-3 truncate">{category.label}</span>}
                 {!isCollapsed && isActive && (
-                  <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary"></span>
+                  <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0"></span>
                 )}
               </a>
             );
           })}
         </nav>
         
-        {/* Info card - only show when expanded */}
+        {/* Info card - only show when expanded and with proper overflow handling */}
         {!isCollapsed && (
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <div className="bg-gradient-to-br from-primary/5 to-primary/10 dark:from-gray-800 dark:to-gray-800/80 rounded-lg p-3 text-xs">
               <div className="flex items-center mb-2">
-                <div className="bg-primary/10 dark:bg-primary/20 p-1.5 rounded-full">
+                <div className="flex-shrink-0 bg-primary/10 dark:bg-primary/20 p-1.5 rounded-full">
                   <NewspaperIcon className="h-3.5 w-3.5 text-primary" />
                 </div>
-                <p className="font-medium ml-2 text-gray-900 dark:text-gray-100">NewsHub Pro Tip</p>
+                <p className="font-medium ml-2 text-gray-900 dark:text-gray-100 truncate">NewsHub Pro Tip</p>
               </div>
-              <p className="text-gray-700 dark:text-gray-300 text-xs">Stay updated with your favorite topics by selecting categories or using the search bar</p>
+              <p className="text-gray-700 dark:text-gray-300 text-xs line-clamp-3">Stay updated with your favorite topics by selecting categories or using the search bar</p>
             </div>
           </div>
         )}

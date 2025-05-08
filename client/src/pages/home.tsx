@@ -143,10 +143,13 @@ export default function Home({ toggleDarkMode }: HomeProps) {
         handleSearch={handleSearch}
       />
 
-      <main className="flex-grow container mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
-        <Sidebar currentCategory={currentCategory} setCurrentCategory={handleCategoryChange} />
+      <main className="flex-grow container mx-auto px-4 py-6 flex flex-col md:flex-row gap-4 md:gap-6 relative">
+        {/* Fixed width sidebar that doesn't disrupt layout */}
+        <div className="md:block md:flex-none">
+          <Sidebar currentCategory={currentCategory} setCurrentCategory={handleCategoryChange} />
+        </div>
 
-        <div className="flex-grow">
+        <div className="flex-grow min-w-0 w-full">
           {/* Show headline slider only on home/category pages, not search */}
           {!searchQuery && headlines.length > 0 && (
             <HeadlineSlider headlines={headlines} />
