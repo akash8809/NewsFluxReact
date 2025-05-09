@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { Article } from "@/lib/types";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { formatDistance } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { SocialShare } from "./social-share";
+
+// Article storage helper function
+const storeArticleForDetail = (article: Article) => {
+  try {
+    localStorage.setItem('currentArticle', JSON.stringify(article));
+  } catch (e) {
+    console.error('Failed to store article in localStorage', e);
+  }
+};
 
 interface ArticleCardProps {
   article: Article;
@@ -30,7 +39,10 @@ export function ArticleCard({ article, featured = false }: ArticleCardProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <Card className="rounded-lg overflow-hidden shadow-sm article-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 h-full flex flex-col group relative">
-        <Link href={`/article/${encodeURIComponent(article.title)}`}>
+        <Link 
+          href={`/article/${encodeURIComponent(article.title)}`}
+          onClick={() => storeArticleForDetail(article)}
+        >
           <div className="cursor-pointer">
             <div className="relative aspect-video overflow-hidden">
               {article.image && (

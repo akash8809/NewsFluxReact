@@ -4,6 +4,15 @@ import { Link } from 'wouter';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+// Article storage helper function
+const storeArticleForDetail = (article: Article) => {
+  try {
+    localStorage.setItem('currentArticle', JSON.stringify(article));
+  } catch (e) {
+    console.error('Failed to store article in localStorage', e);
+  }
+};
+
 interface HeadlineSliderProps {
   headlines: Article[];
 }
@@ -62,7 +71,10 @@ export function HeadlineSlider({ headlines }: HeadlineSliderProps) {
       
       {/* Slide content with fixed maximum height */}
       <div className="bg-gradient-to-r from-primary/5 to-transparent dark:from-gray-900/30 dark:to-transparent">
-        <Link href={`/article/${encodeURIComponent(headline.title)}`}>
+        <Link 
+          href={`/article/${encodeURIComponent(headline.title)}`}
+          onClick={() => storeArticleForDetail(headline)}
+        >
           <div className="flex flex-col md:flex-row items-stretch cursor-pointer group/article h-full">
             {/* Image container with fixed dimensions */}
             {headline.image && (

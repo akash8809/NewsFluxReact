@@ -5,6 +5,15 @@ import { Card } from "@/components/ui/card";
 import { Link } from "wouter";
 import { SocialShare } from "./social-share";
 
+// Article storage helper function
+const storeArticleForDetail = (article: Article) => {
+  try {
+    localStorage.setItem('currentArticle', JSON.stringify(article));
+  } catch (e) {
+    console.error('Failed to store article in localStorage', e);
+  }
+};
+
 interface FeaturedArticleProps {
   article: Article;
 }
@@ -28,7 +37,10 @@ export function FeaturedArticle({ article }: FeaturedArticleProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <Card className="group relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
-        <Link href={`/article/${encodeURIComponent(article.title)}`}>
+        <Link 
+          href={`/article/${encodeURIComponent(article.title)}`}
+          onClick={() => storeArticleForDetail(article)}
+        >
           <div className="cursor-pointer relative">
             <div className="flex flex-col md:flex-row h-full">
               {/* Image container - takes full width on mobile, 50% on desktop */}
