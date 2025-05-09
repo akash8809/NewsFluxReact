@@ -1,81 +1,91 @@
 import axios from 'axios';
 import { Article, NewsApiParams, NewsResponse } from '@/lib/types';
 
-// GNews API base URL
-const BASE_URL = 'https://gnews.io/api/v4';
+// News API base URL
+const BASE_URL = 'https://newsapi.org/v2';
 
 // Default parameters
 const DEFAULT_PAGE_SIZE = 10;
-const DEFAULT_LANGUAGE = 'en';
 
-// Fetch news from GNews API
+// Fetch news from News API
 export async function fetchNews(params: NewsApiParams): Promise<NewsResponse> {
   try {
-    const apiKey = process.env.GNEWS_API_KEY || '';
+    const apiKey = process.env.NEWS_API_KEY || '';
     
     if (!apiKey) {
-      throw new Error('GNEWS_API_KEY environment variable is not set');
+      throw new Error('NEWS_API_KEY environment variable is not set');
     }
 
-    const queryParams = new URLSearchParams({
-      apikey: apiKey,
-      lang: DEFAULT_LANGUAGE,
-      max: String(params.pageSize || DEFAULT_PAGE_SIZE),
-    });
+    // Basic query parameters
+    const queryParams: Record<string, string> = {
+      apiKey: apiKey,
+      pageSize: String(params.pageSize || DEFAULT_PAGE_SIZE),
+      language: 'en',
+    };
 
-    // Add page number if provided
+    // Add page number if provided (Note: News API uses page, not offset)
     if (params.page) {
-      queryParams.append('page', String(params.page));
+      queryParams.page = String(params.page);
     }
 
-    // Decide the endpoint based on parameters
+    // Determine the endpoint based on query parameters
     let endpoint = `${BASE_URL}/top-headlines`;
     
-    // Add query parameter if provided
+    // Handle search query if provided
     if (params.q) {
-      // Properly encode the query string to handle special characters like £, quotes, etc.
       const encodedQuery = encodeURIComponent(params.q);
-      queryParams.append('q', encodedQuery);
-      endpoint = `${BASE_URL}/search`;
-      
-      // Log the query for debugging
+      queryParams.q = encodedQuery;
+      // For free tier, use /everything endpoint for search
+      endpoint = `${BASE_URL}/everything`;
       console.log(`Searching for query: ${encodedQuery}`);
-    }
-
-    // Add category parameter if provided and no query is set
-    if (params.category) {
-      // For debugging
+    } 
+    // If no search query but category is provided, use category for top-headlines
+    else if (params.category) {
       console.log(`Using category: ${params.category}`);
       
-      if (params.category !== 'general') {
-        queryParams.append('category', params.category);
-      }
+      // Top-headlines requires either country or sources or category
+      queryParams.country = 'us'; // Default to US news
       
-      // If we're doing a category search, make sure we're using the top-headlines endpoint
-      if (!params.q) {
-        endpoint = `${BASE_URL}/top-headlines`;
+      // Only add category if it's not 'general' (general is default)
+      if (params.category !== 'general') {
+        queryParams.category = params.category;
       }
+    } 
+    // Default case - top headlines for country
+    else {
+      queryParams.country = 'us';
+      console.log('Returning top headlines for US');
     }
 
-    const response = await axios.get(`${endpoint}?${queryParams.toString()}`);
+    // Convert query params to URL search params
+    const searchParams = new URLSearchParams(queryParams);
     
+    // Make the API request
+    const response = await axios.get(`${endpoint}?${searchParams.toString()}`);
     const data = response.data;
     
+    if (data.status !== 'ok') {
+      throw new Error(`API returned status: ${data.status} - ${data.message || 'Unknown error'}`);
+    }
+    
     // Normalize the response to match our expected format
+    // Note: News API uses urlToImage, we map it to image to match our interface
     return {
-      totalArticles: data.totalArticles || 0,
+      totalArticles: data.totalResults || 0,
       articles: data.articles.map((article: any) => ({
         source: {
-          id: null,
-          name: article.source.name,
+          id: article.source?.id || null,
+          name: article.source?.name || 'Unknown Source',
         },
         author: article.author || null,
-        title: article.title,
-        description: article.description,
-        url: article.url,
-        image: article.image,
-        content: article.content,
-        publishedAt: article.publishedAt,
+        title: article.title || 'Untitled Article',
+        description: article.description || 'No description available',
+        url: article.url || '#',
+        // Map urlToImage to image
+        image: article.urlToImage || null,
+        // News API has content limited to 200 chars, use description as fallback
+        content: article.content || article.description || 'No content available',
+        publishedAt: article.publishedAt || new Date().toISOString(),
       })),
     };
   } catch (error: any) {
@@ -90,7 +100,7 @@ export async function fetchNews(params: NewsApiParams): Promise<NewsResponse> {
         headers: error.response.headers
       });
       
-      throw new Error(`News API error: ${error.response.status} - ${error.response.data.errors?.[0] || error.response.data.error || error.response.statusText}`);
+      throw new Error(`News API error: ${error.response.status} - ${error.response.data.message || error.response.statusText}`);
     } else if (error.request) {
       // The request was made but no response was received
       console.error('API Network Error:', error.request);
