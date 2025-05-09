@@ -14,31 +14,41 @@ export default function Article() {
   const [article, setArticle] = useState<ArticleType | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentCategory, setCurrentCategory] = useState<string>("general");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isError, setIsError] = useState<boolean>(false);
   
-  // Safely decode the URL parameter
-  const safelyDecodeParam = (param: string | undefined): string => {
-    if (!param) return "";
-    try {
-      return decodeURIComponent(param);
-    } catch (e) {
-      console.error("Error decoding URL parameter:", e);
-      return param; // Return the original encoded value if decoding fails
-    }
-  };
-
-  const articleTitle = safelyDecodeParam(params?.id);
-  
-  const { data, isLoading, isError } = useQuery<NewsResponse>({
-    queryKey: [NEWS_API_ENDPOINT, { q: articleTitle }],
-    enabled: !!params?.id,
-  });
-
+  // Load article from localStorage on mount
   useEffect(() => {
-    if (data && data.articles.length > 0) {
-      setArticle(data.articles[0]);
-      document.title = `${data.articles[0].title} | NewsHub`;
-    }
-  }, [data]);
+    const loadArticleFromStorage = () => {
+      try {
+        setIsLoading(true);
+        const storedArticle = localStorage.getItem('currentArticle');
+        
+        if (storedArticle) {
+          const parsedArticle = JSON.parse(storedArticle);
+          setArticle(parsedArticle);
+          setIsLoading(false);
+          document.title = `${parsedArticle.title} | NewsHub`;
+        } else {
+          console.error('No article found in localStorage');
+          setIsError(true);
+          setIsLoading(false);
+        }
+      } catch (e) {
+        console.error('Error loading article from localStorage', e);
+        setIsError(true);
+        setIsLoading(false);
+      }
+    };
+    
+    loadArticleFromStorage();
+    
+    // Clean up function - remove the article from storage when leaving the page
+    return () => {
+      // Optionally clear the localStorage item when leaving the page
+      // localStorage.removeItem('currentArticle');
+    };
+  }, []);
 
   // Dummy function handlers for the header props
   const handleSearch = () => {};
