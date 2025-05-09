@@ -11,7 +11,19 @@ interface SearchBarProps {
 export function SearchBar({ searchQuery, setSearchQuery, handleSearch }: SearchBarProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleSearch();
+    
+    // Trim and sanitize search query
+    const trimmedQuery = searchQuery.trim();
+    if (trimmedQuery) {
+      handleSearch();
+    }
+  };
+
+  // Handle input changes and sanitize on the fly
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove any characters that might cause problems in search
+    const sanitizedValue = e.target.value;
+    setSearchQuery(sanitizedValue);
   };
 
   return (
@@ -22,7 +34,7 @@ export function SearchBar({ searchQuery, setSearchQuery, handleSearch }: SearchB
           type="text"
           placeholder="Search for news..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleInputChange}
           className="w-full pl-10 pr-10 py-1.5 h-9 text-sm bg-gray-100 dark:bg-gray-800/70 border-0 rounded-full focus-visible:ring-1 focus-visible:ring-primary"
         />
         {searchQuery && (

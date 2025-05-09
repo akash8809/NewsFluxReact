@@ -15,8 +15,21 @@ export default function Article() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentCategory, setCurrentCategory] = useState<string>("general");
   
+  // Safely decode the URL parameter
+  const safelyDecodeParam = (param: string | undefined): string => {
+    if (!param) return "";
+    try {
+      return decodeURIComponent(param);
+    } catch (e) {
+      console.error("Error decoding URL parameter:", e);
+      return param; // Return the original encoded value if decoding fails
+    }
+  };
+
+  const articleTitle = safelyDecodeParam(params?.id);
+  
   const { data, isLoading, isError } = useQuery<NewsResponse>({
-    queryKey: [NEWS_API_ENDPOINT, { q: decodeURIComponent(params?.id || "") }],
+    queryKey: [NEWS_API_ENDPOINT, { q: articleTitle }],
     enabled: !!params?.id,
   });
 

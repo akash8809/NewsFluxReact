@@ -33,8 +33,13 @@ export async function fetchNews(params: NewsApiParams): Promise<NewsResponse> {
     
     // Add query parameter if provided
     if (params.q) {
-      queryParams.append('q', params.q);
+      // Properly encode the query string to handle special characters like £, quotes, etc.
+      const encodedQuery = encodeURIComponent(params.q);
+      queryParams.append('q', encodedQuery);
       endpoint = `${BASE_URL}/search`;
+      
+      // Log the query for debugging
+      console.log(`Searching for query: ${encodedQuery}`);
     }
 
     // Add category parameter if provided and no query is set
@@ -79,12 +84,20 @@ export async function fetchNews(params: NewsApiParams): Promise<NewsResponse> {
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
-      throw new Error(`News API error: ${error.response.status} - ${error.response.data.error || error.response.statusText}`);
+      console.error('API Response Error:', {
+        status: error.response.status,
+        data: error.response.data,
+        headers: error.response.headers
+      });
+      
+      throw new Error(`News API error: ${error.response.status} - ${error.response.data.errors?.[0] || error.response.data.error || error.response.statusText}`);
     } else if (error.request) {
       // The request was made but no response was received
+      console.error('API Network Error:', error.request);
       throw new Error('No response from News API. Please check your network connection.');
     } else {
       // Something happened in setting up the request that triggered an Error
+      console.error('API Setup Error:', error.message);
       throw new Error(`Error setting up request: ${error.message}`);
     }
   }

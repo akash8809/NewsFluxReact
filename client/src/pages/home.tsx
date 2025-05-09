@@ -66,8 +66,13 @@ export default function Home({ toggleDarkMode }: HomeProps) {
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
+      // Search query is already properly handled by the backend with encoding
+      // But we still need to trim and sanitize it here as an extra precaution
       setQueryParams({ q: searchQuery.trim() });
       setCurrentCategory("");
+      
+      // Log search for debugging
+      console.log("Searching for:", searchQuery.trim());
     } else if (currentCategory) {
       setQueryParams({ category: currentCategory });
     }
