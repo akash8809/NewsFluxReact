@@ -10,7 +10,7 @@ const DEFAULT_PAGE_SIZE = 10;
 // Fetch news from News API
 export async function fetchNews(params: NewsApiParams): Promise<NewsResponse> {
   try {
-    const apiKey = process.env.NEWS_API_KEY || '';
+    const apiKey = process.env.NEWS_API_KEY || 'f241bf5cf8d84063b598e2b21793fcca';
     
     if (!apiKey) {
       throw new Error('NEWS_API_KEY environment variable is not set');
